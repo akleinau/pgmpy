@@ -46,7 +46,7 @@ class NETReader(object):
         if path:
             self.network = self.getNetwork(open(path, "r"))
         elif string:
-            self.network =  self.getNetwork(io.StringIO(string))
+            self.network = self.getNetwork(io.StringIO(string))
         else:
             raise ValueError("Must specify either path or string")
         self.network_name = "undefined"
@@ -170,8 +170,9 @@ class NETReader(object):
                 for i in range(0, len(cpd_numpy.shape)-1):
                     resize_dim *= cpd_numpy.shape[i]
 
-                resize_tuple = (len(self.variable_states[node]), resize_dim)
+                resize_tuple = (resize_dim, len(self.variable_states[node]) )
                 cpd_numpy = np.resize(cpd_numpy, resize_tuple)
+                cpd_numpy = np.transpose(cpd_numpy)
             cpd[node] = cpd_numpy
 
         return cpd
