@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import io
 from itertools import chain
 
 from io import BytesIO
@@ -44,9 +44,9 @@ class NETReader(object):
         >>> model = reader.get_model()
         """
         if path:
-            self.network = self.getNetwork(path)
+            self.network = self.getNetwork(open(path, "r"))
         elif string:
-            raise NotImplementedError
+            self.network =  self.getNetwork(io.StringIO(string))
         else:
             raise ValueError("Must specify either path or string")
         self.network_name = "undefined"
@@ -224,44 +224,43 @@ class NETReader(object):
 
         return model
 
-    def getNetwork(self, path):
-        with open(path, "r") as file:
-            nodes = {}
-            while True:
-                line = file.readline()
-                if line == '':
-                    break
-                words = line.split()
-                if len(words) > 0:
-                    # get nodes
-                    if words[0] == "node":
-                        id = words[1]
-                        node = {}
-                        if "{" in file.readline():
-                            while True:
-                                line = file.readline()
-                                if "}" in line:
-                                    break
-                                words = line.split("=")
-                                node[words[0].strip()] = words[1].strip()
-                        nodes[id] = node
-                    # get potentials
-                    if words[0] == "potential":
-                        name = words[1].lstrip("(")
-                        parents = []
-                        for i in range(3, len(words)):
-                            parents.append(words[i].replace(")", ""))
-                        nodes[name]["parents"] = parents
-                        if "{" in file.readline():
+    def getNetwork(self, file):
+        nodes = {}
+        while True:
+            line = file.readline()
+            if line == '':
+                break
+            words = line.split()
+            if len(words) > 0:
+                # get nodes
+                if words[0] == "node":
+                    id = words[1]
+                    node = {}
+                    if "{" in file.readline():
+                        while True:
                             line = file.readline()
-                            data = line.strip("data = ")
-                            while True:
-                                line = file.readline()
-                                data += line.strip()
-                                if "}" in line:
-                                    break
-                            data = data.replace("}", "")
-                            data = data.replace(";", "")
-                            nodes[name]["cpd"] = data
+                            if "}" in line:
+                                break
+                            words = line.split("=")
+                            node[words[0].strip()] = words[1].strip()
+                    nodes[id] = node
+                # get potentials
+                if words[0] == "potential":
+                    name = words[1].lstrip("(")
+                    parents = []
+                    for i in range(3, len(words)):
+                        parents.append(words[i].replace(")", ""))
+                    nodes[name]["parents"] = parents
+                    if "{" in file.readline():
+                        line = file.readline()
+                        data = line.strip("data = ")
+                        while True:
+                            line = file.readline()
+                            data += line.strip()
+                            if "}" in line:
+                                break
+                        data = data.replace("}", "")
+                        data = data.replace(";", "")
+                        nodes[name]["cpd"] = data
 
         return nodes
