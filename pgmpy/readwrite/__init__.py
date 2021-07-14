@@ -3,6 +3,7 @@ from .PomdpX import PomdpXReader, PomdpXWriter
 from .XMLBeliefNetwork import XBNReader, XBNWriter
 from .UAI import UAIReader, UAIWriter
 from .BIF import BIFReader, BIFWriter
+from .NET import NETReader
 
 __all__ = [
     "ProbModelXMLReader",
@@ -17,4 +18,5 @@ __all__ = [
     "UAIWriter",
     "BIFReader",
     "BIFWriter",
+    "NETReader"
 ]
