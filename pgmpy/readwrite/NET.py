@@ -56,6 +56,7 @@ class NETReader(object):
         self.state_names = self.get_states()
         self.variable_states = self.get_states()
         self.variable_CPD = self.get_values()
+        self.labels = self.get_labels()
 
     def get_variables(self):
         """
@@ -68,6 +69,12 @@ class NETReader(object):
         ['light-on', 'bowel-problem', 'dog-out', 'hear-bark', 'family-out']
         """
         return list(self.network.keys())
+
+    def get_labels(self):
+        labels = {}
+        for node in self.network.keys():
+            labels[node] = self.network[node]["label"].strip(";").strip('"')
+        return labels
 
     def get_edges(self):
         """
